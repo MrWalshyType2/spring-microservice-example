@@ -4,13 +4,15 @@ public class Movie {
 
     private String movieID;
     private String name;
+    private String description;
 
     public Movie() {
 
     }
 
-    public Movie(String movieID, String name) {
+    public Movie(String movieID, String description, String name) {
         this.movieID = movieID;
+        this.description = description;
         this.name = name;
     }
 
@@ -28,5 +30,13 @@ public class Movie {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

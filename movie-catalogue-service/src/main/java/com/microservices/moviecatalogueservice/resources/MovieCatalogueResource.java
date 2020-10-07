@@ -4,7 +4,10 @@ import com.microservices.moviecatalogueservice.models.CatalogueItem;
 import com.microservices.moviecatalogueservice.models.Movie;
 import com.microservices.moviecatalogueservice.models.Rating;
 import com.microservices.moviecatalogueservice.models.UserRating;
+import com.microservices.moviecatalogueservice.services.MovieInfo;
+import com.microservices.moviecatalogueservice.services.UserRatingInfo;
 import com.netflix.discovery.DiscoveryClient;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,22 +32,40 @@ public class MovieCatalogueResource {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
+    @Autowired
+    private MovieInfo movieInfo;
+
+    @Autowired
+    private UserRatingInfo userRatingInfo;
+
 //    @Autowired
 //    private DiscoveryClient discoveryClient; // For advanced control over load balancing
 
+    /**
+     * Gets a catalogue of Movie information, has a fallback method of
+     * getFallbackCatalogue. Circuit breaker is provided by Hystrix.
+     *
+     * @param userID
+     * @return List<CatalogueItem>
+     */
     @RequestMapping("/{userID}")
+    //@HystrixCommand(fallbackMethod = "getFallbackCatalogue") // Indicates to Hystrix that this method should 'break the circuit' if it goes down
     public List<CatalogueItem> getCatalogue(@PathVariable("userID") String userID) {
-
         // Get all ratings from ratings API | Specifying the Eureka service name
-        UserRating ratings = restTemplate.getForObject("http://ratings-data-service/ratings/users/" + userID, UserRating.class);
+        UserRating ratings = userRatingInfo.getUserRating(userID);
+        return ratings.getUserRatings().stream()
+            .map(rating -> movieInfo.getCatalogueItem(rating))
+            .collect(Collectors.toList());
+    }
 
-        return ratings.getUserRatings().stream().map(rating -> {
-            // For each movie ID, call the movie info API and get the details
-            Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieID(), Movie.class);
-
-            // Then put them together
-            return new CatalogueItem(movie.getName(), "test", rating.getRating());
-        }).collect(Collectors.toList());
+    /**
+     * Simple hardcoded fallback method for if getCatalogue fails.
+     *
+     * @param userID
+     * @return List<CatalogueItem>
+     */
+    public List<CatalogueItem> getFallbackCatalogue(@PathVariable("userID") String userID) {
+        return Arrays.asList(new CatalogueItem("No movies available", "", 0));
     }
 }
 

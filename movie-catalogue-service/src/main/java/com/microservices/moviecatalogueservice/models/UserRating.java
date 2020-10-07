@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class UserRating {
 
+    private String userID;
     private List<Rating> userRatings;
 
     public List<Rating> getUserRatings() {
@@ -15,5 +16,13 @@ public class UserRating {
 
     public void setUserRatings(List<Rating> userRatings) {
         this.userRatings = userRatings;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 }
