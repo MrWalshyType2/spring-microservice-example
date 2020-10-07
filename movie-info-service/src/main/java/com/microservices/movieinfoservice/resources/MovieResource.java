@@ -22,6 +22,12 @@ public class MovieResource {
     @Autowired
     private RestTemplate restTemplate;
 
+    /**
+     * Gets a MovieSummary info from a movie API.
+     *
+     * @param movieID
+     * @return Movie
+     */
     @RequestMapping("/{movieID}")
     public Movie getMovieInfo(@PathVariable("movieID") String movieID) {
         MovieSummary movieSummary = restTemplate.getForObject(

@@ -19,7 +19,7 @@ public class MovieCatalogueServiceApplication {
 	 * Is a @Bean for dependency injection, is @LoadBalanced for balancing between services of the same name.
 	 *
 	 * @return RestTemplate
-	 * @deprecated
+	 * @deprecated Spring will be deprecating RestTemplate in the future.
 	 */
 	@Bean
 	@LoadBalanced // Does service discovery, balances the load. The RestTemplate will look for a relevant service

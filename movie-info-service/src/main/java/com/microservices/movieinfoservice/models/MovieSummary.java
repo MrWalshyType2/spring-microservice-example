@@ -1,5 +1,8 @@
 package com.microservices.movieinfoservice.models;
 
+/**
+ * Wraps incoming data from a Movie API.
+ */
 public class MovieSummary {
 
     private String id;
